@@ -2,12 +2,12 @@ name: Laravel CI
 
 # Ejecutar en push hacia cualquier rama y pull request hacia la rama principal (main)
 on:
-  push:           # Ejecutar al hacer un push
+  push:
     branches:
-      - '*'       # Aplica a cualquier rama
-  pull_request:   # Ejecutar al crear un pull request
+      - '*'  # Aplica a cualquier rama
+  pull_request:
     branches:
-      - main      # Aplica solo a pull requests dirigidos a la rama principal
+      - main  # Aplica solo a pull requests dirigidos a la rama principal
 
 jobs:
   # Definir el job para la integración continua (CI)
@@ -17,7 +17,7 @@ jobs:
     services:
       # Definir el servicio de MySQL
       mysql:
-        image: mysql:8.0   # Usar la imagen oficial de MySQL 8.0
+        image: mysql:8.0  # Usar la imagen oficial de MySQL 8.0
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: ressoft  # Nombre de la base de datos para pruebas
@@ -38,8 +38,8 @@ jobs:
     - name: Instalar PHP y extensiones necesarias
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'  # Cambia la versión según tu proyecto
-        extensions: mbstring, bcmath, mysql, gd # Añade más extensiones si es necesario
+        php-version: '8.2'
+        extensions: mbstring, bcmath, mysql, gd
         ini-values: post_max_size=256M, upload_max_filesize=256M, memory_limit=512M
 
     # 3. Instalar Composer
@@ -72,14 +72,17 @@ jobs:
     - name: Ejecutar pruebas unitarias y de integración
       run: vendor/bin/phpunit --log-junit test-log.xml
 
-    # 8. Mostrar logs de la ejecución
-    - name: Mostrar logs de la ejecución
+    # 8. Mostrar logs de las pruebas
+    - name: Mostrar logs de las pruebas
       if: failure()
       run: cat test-log.xml
 
-    # 9. Mostrar errores detallados si hay fallos
+    # 9. Mostrar errores detallados del log de Laravel si falla
+    - name:  Mostrar errores detallados del log de Laravel si falla
+      if: failure()
+      run: cat storage/logs/laravel.log
+
+    # 10. Mostrar errores del sistema si las pruebas fallan
     - name: Mostrar errores detallados si hay fallos
       if: failure()
       run: dmesg | tail -n 50
-
-

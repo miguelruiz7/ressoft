@@ -20,7 +20,7 @@ jobs:
         image: mysql:8.0   # Usar la imagen oficial de MySQL 8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: laravel_ci  # Nombre de la base de datos para pruebas
+          MYSQL_DATABASE: ressoft  # Nombre de la base de datos para pruebas
         ports:
           - 3306:3306
         options: >-
@@ -60,7 +60,7 @@ jobs:
         DB_CONNECTION: mysql
         DB_HOST: 127.0.0.1
         DB_PORT: 3306
-        DB_DATABASE: laravel_ci  # Debe coincidir con el nombre definido en la sección 'services'
+        DB_DATABASE: ressoft  # Debe coincidir con el nombre definido en la sección 'services'
         DB_USERNAME: root
         DB_PASSWORD: root
 

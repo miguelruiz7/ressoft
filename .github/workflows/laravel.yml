@@ -46,9 +46,6 @@ jobs:
     - name: Instalar Composer
       run: composer install --prefer-dist --no-progress --no-suggest
 
-    # 4. Copiar archivo de entorno
-    - name: Copy .env
-      run: cp .env.example .env
 
     # 5. Configurar variables de entorno para conexión MySQL
     - name: Configurar variables de entorno para conexión MySQL

@@ -1,0 +1,89 @@
+name: Laravel CI
+
+# Ejecutar en push hacia cualquier rama y pull request hacia la rama principal (main)
+on:
+  push:           # Ejecutar al hacer un push
+    branches:
+      - '*'       # Aplica a cualquier rama
+  pull_request:   # Ejecutar al crear un pull request
+    branches:
+      - main      # Aplica solo a pull requests dirigidos a la rama principal
+
+jobs:
+  # Definir el job para la integración continua (CI)
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      # Definir el servicio de MySQL
+      mysql:
+        image: mysql:8.0   # Usar la imagen oficial de MySQL 8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: laravel_ci  # Nombre de la base de datos para pruebas
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    # 1. Chequear el código
+    - name: Chequear el código
+      uses: actions/checkout@v3
+
+    # 2. Instalar PHP y extensiones necesarias
+    - name: Instalar PHP y extensiones necesarias
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'  # Cambia la versión según tu proyecto
+        extensions: mbstring, bcmath, mysql, gd # Añade más extensiones si es necesario
+        ini-values: post_max_size=256M, upload_max_filesize=256M, memory_limit=512M
+
+    # 3. Instalar Composer
+    - name: Instalar Composer
+      run: composer install --prefer-dist --no-progress --no-suggest
+
+    # 4. Copiar archivo de entorno
+    - name: Copy .env
+      run: cp .env.example .env
+
+    # 5. Configurar variables de entorno para conexión MySQL
+    - name: Configurar variables de entorno para conexión MySQL
+      run: |
+        php artisan config:clear
+        php artisan key:generate
+        php artisan config:cache
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: laravel_ci  # Debe coincidir con el nombre definido en la sección 'services'
+        DB_USERNAME: root
+        DB_PASSWORD: root
+
+    # 6. Ejecutar migraciones de base de datos en MySQL
+    - name: Ejecutar migraciones de base de datos en MySQL
+      run: php artisan migrate --force
+
+    # 7. Ejecutar pruebas unitarias y de integración
+    - name: Ejecutar pruebas unitarias y de integración
+      run: vendor/bin/phpunit --log-junit test-log.xml
+
+    # 8. Mostrar logs de la ejecución
+    - name: Mostrar logs de la ejecución
+      if: failure()
+      run: cat test-log.xml
+
+    # 9. Mostrar errores detallados si hay fallos
+    - name: Mostrar errores detallados si hay fallos
+      if: failure()
+      run: dmesg | tail -n 50
+
+    # 10. Notificar el éxito o fracaso del build (opcional)
+    - name: Notificar el éxito o fracaso del build (opcional)
+      uses: nicolasbeauvais/notify-action@v1.1
+      with:
+        status: ${{ job.status }}

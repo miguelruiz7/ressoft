@@ -48,7 +48,7 @@ jobs:
 
     # 4. Copiar archivo de entorno
     - name: Copiar archivo de entorno
-      run: cp .env .env
+      run: cp .env.workflow .env
 
     # 5. Configurar variables de entorno para conexión MySQL
     - name: Configurar variables de entorno para conexión MySQL

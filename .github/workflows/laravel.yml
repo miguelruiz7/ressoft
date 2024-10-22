@@ -82,8 +82,4 @@ jobs:
       if: failure()
       run: dmesg | tail -n 50
 
-    # 10. Notificar el éxito o fracaso del build (opcional)
-    - name: Notificar el éxito o fracaso del build (opcional)
-      uses: nicolasbeauvais/notify-action@v1.1
-      with:
-        status: ${{ job.status }}
+
